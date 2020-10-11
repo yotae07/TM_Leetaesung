@@ -5,7 +5,7 @@ from django.test  import (
     Client
 )
 
-from .models import (
+from .models      import (
     Year,
     Genres,
     Country,
@@ -16,6 +16,22 @@ class MovieViewTest(TestCase):
     def setUp(self):
         year = Year.objects.create(
             year       = 2019,
+            is_deleted = 0
+        )
+        Year.objects.create(
+            year       = 2020,
+            is_deleted = 0
+        )
+        Genres.objects.create(
+            genres     = "SF",
+            is_deleted = 0
+        )
+        Country.objects.create(
+            country    = "미국",
+            is_deleted = 0
+        )
+        Country.objects.create(
+            country    = "일본",
             is_deleted = 0
         )
         genres = Genres.objects.create(
@@ -60,6 +76,60 @@ class MovieViewTest(TestCase):
 
         response = self.client.get('/moive')
         self.assertEqual(response.status_code, 404)
+
+    def test_post_success(self):
+        movie = {
+            "title": "테넷",
+            "year": 2020,
+            "rating": 5,
+            "genres": "SF",
+            "country": "미국",
+            "runtime": 150,
+            "summary": "시간의 흐름을 뒤집는 인버전을 통해 현재와 미래를 오가며 세상을 파괴하려는 사토르(케네스 브래너)를 막기 위해 투입된 작전의 주도자(존 데이비드 워싱턴). 인버전에 대한 정보를 가진 닐(로버트 패틴슨)과 미술품 감정사이자 사토르에 대한 복수심이 가득한 그의 아내 캣(엘리자베스 데비키)과 협력해 미래의 공격에 맞서 제3차 세계대전을 막아야 한다!",
+            "poster": "테넷_포스터"
+            }
+
+        response = self.client.post('/movie', json.dumps(movie), content_type="application/json")
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.json(), {
+            "message": "SUCCESS"
+            })
+
+    def test_post_fail_400(self):
+        movie = {
+            "title": "테넷",
+            "year": 2020,
+            "genres": "SF",
+            "country": "미국",
+            "runtime": 150,
+            "summary": "시간의 흐름을 뒤집는 인버전을 통해 현재와 미래를 오가며 세상을 파괴하려는 사토르(케네스 브래너)를 막기 위해 투입된 작전의 주도자(존 데이비드 워싱턴). 인버전에 대한 정보를 가진 닐(로버트 패틴슨)과 미술품 감정사이자 사토르에 대한 복수심이 가득한 그의 아내 캣(엘리자베스 데비키)과 협력해 미래의 공격에 맞서 제3차 세계대전을 막아야 한다!",
+            "poster": "테넷_포스터"
+            }
+
+        response = self.client.post('/movie', json.dumps(movie), content_type="application/json")
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json(), {
+            "message": "INVALID_REQUEST"
+            })
+
+    def test_post_fail_409(self):
+        movie = {
+            "title": "극한직업",
+            "year": 2020,
+            "genres": "코메디",
+            "rating": 3,
+            "country": "일본",
+            "runtime": 111,
+            "summary": "전혀 다른 내용",
+            "poster": "또 다른 포스터"
+            }
+
+        response = self.client.post('/movie', json.dumps(movie), content_type="application/json")
+        self.assertEqual(response.status_code, 409)
+        self.assertEqual(response.json(), {
+            "message": "EXISTS_MOVIE"
+            })
+
 
 class MovieDetailViewTest(TestCase):
     def setUp(self):
