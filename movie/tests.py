@@ -168,6 +168,38 @@ class MovieViewTest(TestCase):
             "message": "INVALID_REQUEST"
             })
 
+    def test_delete_success(self):
+        movie = {
+             "title": "극한직업",
+            "runtime": 111
+            }
+
+        response = self.client.delete('/movie', json.dumps(movie), content_type="application/json")
+        self.assertEqual(response.status_code, 202)
+        self.assertEqual(response.json(), {
+            "message": "SUCCESS"
+            })
+
+    def test_delete_fail_405(self):
+        movie = {
+            "title": "극한직업",
+            "runtime": 111
+            }
+
+        response = self.client.patch('/movie', json.dumps(movie), content_type="application/json")
+        self.assertEqual(response.status_code, 405)
+
+    def test_delete_fail_400(self):
+        movie = {
+            "title": "국한직업",
+            "runtime": 111
+            }
+
+        response = self.client.delete('/movie', json.dumps(movie), contetn_type="application/json")
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json(), {
+            "message": "INVALID_REQUEST"
+            })
 
 class MovieDetailViewTest(TestCase):
     def setUp(self):
