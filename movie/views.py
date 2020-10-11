@@ -87,6 +87,23 @@ class MovieView(View):
         except KeyError:
             return JsonResponse({"message": "INVALID_REQUEST"}, status=400)
 
+    def delete(self, request):
+        try:
+            data    = json.loads(request.body)
+
+            title   = data.get("title")
+            runtime = data.get("runtime")
+
+            if title == None or runtime == None:
+                return JsonResponse({"message": "INVALID_REQUEST"}, stauts=400)
+            
+            if Movie.objects.filter(title = title, runtime = runtime).exists():
+                movie = Movie.objects.get(title = title, runtime = runtime)
+                movie.delete()
+                return JsonResponse({"message": "SUCCESS"}, status=202)
+            return JsonResponse({"message": "INVALID_REQUEST"}, status=400)
+        except KeyError:
+            return JsonResponse({"message": "INVALID_REQUEST"}, status=400)
 
 class MovieDetailView(View):
     def get(self, request, movie_id):
