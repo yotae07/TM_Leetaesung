@@ -26,16 +26,16 @@ class MovieViewTest(TestCase):
             genres     = "SF",
             is_deleted = 0
         )
+        genres = Genres.objects.create(
+            genres     = "코메디",
+            is_deleted = 0
+        )
         Country.objects.create(
             country    = "미국",
             is_deleted = 0
         )
         Country.objects.create(
             country    = "일본",
-            is_deleted = 0
-        )
-        genres = Genres.objects.create(
-            genres     = "코메디",
             is_deleted = 0
         )
         country = Country.objects.create(
@@ -128,6 +128,44 @@ class MovieViewTest(TestCase):
         self.assertEqual(response.status_code, 409)
         self.assertEqual(response.json(), {
             "message": "EXISTS_MOVIE"
+            })
+
+    def test_put_success(self):
+        movie = {
+            "title": "극한직업",
+            "runtime": 111,
+            "rating": 2
+            }
+
+        response = self.client.put('/movie', json.dumps(movie), content_type="application/json")
+        self.assertEqual(response.status_code, 202)
+        self.assertEqual(response.json(), {
+            "message": "SUCCESS"
+            })
+
+    def test_put_fail_409(self):
+        movie = {
+            "title": "극한작업",
+            "runtime": 111,
+            "rating": 4
+            }
+
+        response = self.client.put('/movie', json.dumps(movie), content_type="application/json")
+        self.assertEqual(response.status_code, 406)
+        self.assertEqual(response.json(), {
+            "message": "INVALID_REQUEST"
+            })
+
+    def test_put_fail_400(self):
+        movie = {
+            "title": "극한직업",
+            "rating": 4
+            }
+
+        response = self.client.put('/movie', json.dumps(movie), content_type="application/json")
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json(), {
+            "message": "INVALID_REQUEST"
             })
 
 
