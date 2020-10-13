@@ -143,7 +143,7 @@ class MovieViewTest(TestCase):
             "message": "SUCCESS"
             })
 
-    def test_put_fail_409(self):
+    def test_put_fail_406(self):
         movie = {
             "title": "극한작업",
             "runtime": 111,
